@@ -14,6 +14,4 @@
 import Countdown from '@/components/Countdown.vue';
 // import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 </script>
-<style scoped>
-
-</style>
+<style scoped></style>

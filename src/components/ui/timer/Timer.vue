@@ -12,7 +12,7 @@
       </span>
       hours
     </div> -->
-    <div class="bg-neutral rounded-box text-neutral-content flex flex-col p-2 bg-pink-500">
+    <div class="bg-neutral rounded-box text-neutral-content flex flex-col p-2">
       <span class="countdown font-mono text-5xl flip-horizontal-top">
         <span style="--value:24;" aria-live="polite" aria-label="24">{{ minutes }}</span>
       </span>
@@ -39,7 +39,7 @@ defineProps({
 })
 </script>
 <style scoped>
-.flip-horizontal-top {
+/* .flip-horizontal-top {
 	-webkit-animation: flip-horizontal-top 0.4s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
 	        animation: flip-horizontal-top 0.4s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
 }
@@ -63,5 +63,5 @@ defineProps({
     -webkit-transform: rotateX(180deg);
             transform: rotateX(180deg);
   }
-}
+} */
 </style>
