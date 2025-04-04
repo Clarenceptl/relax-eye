@@ -1,9 +1,5 @@
 <template>
   <Card>
-    <!-- <CardHeader>
-      <CardTitle>Card Title</CardTitle>
-      <CardDescription>Card Description</CardDescription>
-    </CardHeader> -->
     <CardContent class="flex flex-col items-center justify-center">
       <Timer :minutes="timerVM.minutes" :seconds="timerVM.seconds" />
     </CardContent>
@@ -15,10 +11,10 @@
   </Card>
 </template>
 <script setup lang="ts">
+import Button from '@/components/ui/button/Button.vue';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Timer } from '@/components/ui/timer';
-import { computed, ref } from 'vue';
-import Button from './ui/button/Button.vue';
+import { computed, onBeforeUnmount, ref } from 'vue';
 
 const initDateTimer = ref<Date>(new Date());
 const countDownWork = computed<number>(() =>
@@ -76,7 +72,7 @@ const timerWork = () => {
   currentInterval.value = setInterval(count, 1000);
   // First count
   Object.assign(timerVM.value, {
-    minutes: 0,
+    minutes: 19,
     seconds: 59,
   });
 };
@@ -116,4 +112,7 @@ const start = () => {
 };
 
 // timerWork();
+onBeforeUnmount(() => {
+  clearCurrentInterval();
+});
 </script>
