@@ -1,5 +1,8 @@
 <template>
   <Card>
+    <CardHeader>
+      <slot name="header" />
+    </CardHeader>
     <CardContent class="flex flex-col items-center justify-center">
       <Timer :minutes="timerVM.minutes" :seconds="timerVM.seconds" />
     </CardContent>
@@ -13,6 +16,7 @@
 <script setup lang="ts">
 import Button from '@/components/ui/button/Button.vue';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import CardHeader from '@/components/ui/card/CardHeader.vue';
 import { Timer } from '@/components/ui/timer';
 import { computed, onBeforeUnmount, ref } from 'vue';
 
