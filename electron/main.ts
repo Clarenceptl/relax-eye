@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -63,6 +63,21 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
+});
+
+ipcMain.on('focus-main-window', () => {
+  const win = BrowserWindow.getAllWindows()[0]; // ou ta fenêtre spécifique
+  if (!win) {
+    return;
+  }
+  if (win.isMinimized()) {
+    win.restore();
+  }
+  
+  const timeout = setTimeout(() => {
+    win.focus();
+    clearTimeout(timeout);
+  }, 1000);
 });
 
 app.whenReady().then(createWindow);
