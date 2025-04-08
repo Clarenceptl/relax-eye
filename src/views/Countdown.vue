@@ -17,22 +17,26 @@ import Button from '@/components/ui/button/Button.vue';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import CardHeader from '@/components/ui/card/CardHeader.vue';
 import { Timer } from '@/components/ui/timer';
+import { sendNotification } from '@/helpers/notification';
 import { computed, onUnmounted, ref } from 'vue';
+
+const INIT_WORK_TIME = 20;
+const INIT_BREAK_TIME = 30;
 
 const initDateTimer = ref<Date>(new Date());
 const countDownWork = computed<number>(() =>
   new Date(
-    initDateTimer.value.setMinutes(initDateTimer.value.getMinutes() + 20)
+    initDateTimer.value.setMinutes(initDateTimer.value.getMinutes() + INIT_WORK_TIME)
   ).getTime()
 );
 const countDownBreak = computed<number>(() =>
   new Date(
-    initDateTimer.value.setSeconds(initDateTimer.value.getSeconds() + 30)
+    initDateTimer.value.setSeconds(initDateTimer.value.getSeconds() + INIT_BREAK_TIME)
   ).getTime()
 );
 
 const timerVM = ref({
-  minutes: 20,
+  minutes: INIT_WORK_TIME,
   seconds: 0
 });
 
@@ -63,6 +67,10 @@ const timerWork = () => {
 
     if (distance < 0 && currentInterval.value) {
       clearCurrentInterval();
+      sendNotification(
+        'Pomodoro',
+        'Time to take a break!'
+      );
       timerBreak();
       window.ipcRenderer.send('focus-main-window');
     }
@@ -86,6 +94,10 @@ const timerBreak = () => {
 
     if (distance < 0 && currentInterval.value) {
       clearCurrentInterval();
+      sendNotification(
+        'Pomodoro',
+        'Time to work!'
+      );
       timerWork();
     }
   };
@@ -101,7 +113,7 @@ const timerBreak = () => {
 
 const resetTimer = () => {
   initDateTimer.value = new Date();
-  timerVM.value.minutes = 20;
+  timerVM.value.minutes = INIT_WORK_TIME;
   timerVM.value.seconds = 0;
   clearCurrentInterval();
 };
