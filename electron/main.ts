@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, powerMonitor, ipcMain } from 'electron';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -76,8 +76,19 @@ ipcMain.on('focus-main-window', () => {
   
   const timeout = setTimeout(() => {
     win.focus();
+    win.setAlwaysOnTop(true, 'screen-saver');
     clearTimeout(timeout);
   }, 1000);
 });
 
-app.whenReady().then(createWindow);
+app.whenReady().then(createWindow).then(()=>{
+  const win = BrowserWindow.getAllWindows()[0];
+  
+  powerMonitor.on('suspend', () => {
+    win?.webContents.send('clear-timer');
+  });
+
+  powerMonitor.on('lock-screen', () => {
+    win?.webContents.send('clear-timer');
+  });
+});

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, powerMonitor } from "electron";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -42,10 +42,19 @@ ipcMain.on("focus-main-window", () => {
   }
   const timeout = setTimeout(() => {
     win2.focus();
+    win2.setAlwaysOnTop(true, "screen-saver");
     clearTimeout(timeout);
   }, 1e3);
 });
-app.whenReady().then(createWindow);
+app.whenReady().then(createWindow).then(() => {
+  const win2 = BrowserWindow.getAllWindows()[0];
+  powerMonitor.on("suspend", () => {
+    win2 == null ? void 0 : win2.webContents.send("clear-timer");
+  });
+  powerMonitor.on("lock-screen", () => {
+    win2 == null ? void 0 : win2.webContents.send("clear-timer");
+  });
+});
 export {
   MAIN_DIST,
   RENDERER_DIST,

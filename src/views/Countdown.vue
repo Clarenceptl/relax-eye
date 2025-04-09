@@ -27,25 +27,25 @@ import { computed, onUnmounted, ref } from 'vue';
 //#endregion
 
 //#region Constants, Refs & Computed
-const INIT_WORK_TIME = 20;
-const INIT_BREAK_TIME = 30;
+const INIT_WORK_TIME_MIN = 20;
+const INIT_BREAK_TIME_SEC = 30;
 
 const initDateTimer = ref<Date>(new Date());
 const focusWindow = ref(true);
 const timerVM = ref({
-  minutes: INIT_WORK_TIME,
+  minutes: INIT_WORK_TIME_MIN,
   seconds: 0
 });
 const currentInterval = ref<NodeJS.Timeout | null>(null);
 
 const countDownWork = computed<number>(() =>
   new Date(
-    initDateTimer.value.setMinutes(initDateTimer.value.getMinutes() + INIT_WORK_TIME)
+    initDateTimer.value.setMinutes(initDateTimer.value.getMinutes() + INIT_WORK_TIME_MIN)
   ).getTime()
 );
 const countDownBreak = computed<number>(() =>
   new Date(
-    initDateTimer.value.setSeconds(initDateTimer.value.getSeconds() + INIT_BREAK_TIME)
+    initDateTimer.value.setSeconds(initDateTimer.value.getSeconds() + INIT_BREAK_TIME_SEC)
   ).getTime()
 );
 //#endregion
@@ -128,7 +128,7 @@ const timerBreak = () => {
 
 const resetTimer = () => {
   initDateTimer.value = new Date();
-  timerVM.value.minutes = INIT_WORK_TIME;
+  timerVM.value.minutes = INIT_WORK_TIME_MIN;
   timerVM.value.seconds = 0;
   clearCurrentInterval();
 };
@@ -139,7 +139,15 @@ const start = () => {
 };
 //#endregion
 
+//#region Initialization
+window.ipcRenderer.on('clear-timer', () => {
+  resetTimer();
+});
+//#endregion
+
+//#region Lifecycle Hooks
 onUnmounted(() => {
   clearCurrentInterval();
 });
+//#endregion
 </script>
