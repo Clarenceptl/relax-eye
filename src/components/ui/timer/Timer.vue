@@ -14,29 +14,33 @@
     </div> -->
     <div class="bg-neutral rounded-box text-neutral-content flex flex-col p-2">
       <span class="countdown font-mono text-5xl flip-horizontal-top">
-        <span style="--value:24;" aria-live="polite" aria-label="24">{{ minutes }}</span>
+        <span style="--value: 24" aria-live="polite" aria-label="24">{{
+          minutes
+        }}</span>
       </span>
       min
     </div>
     <div class="bg-neutral rounded-box text-neutral-content flex flex-col p-2">
       <span class="countdown font-mono text-5xl">
-        <span style="--value:59;" aria-live="polite" aria-label="59">{{ seconds }}</span>
+        <span style="--value: 59" aria-live="polite" aria-label="59">{{
+          seconds
+        }}</span>
       </span>
       sec
     </div>
   </div>
 </template>
-<script setup>
+<script setup lang="ts">
 defineProps({
-  minutes:{
+  minutes: {
     type: Number,
-    default: 0,
+    default: 0
   },
-  seconds:{
+  seconds: {
     type: Number,
-    default: 0,
-  },
-})
+    default: 0
+  }
+});
 </script>
 <style scoped>
 /* .flip-horizontal-top {
