@@ -40,5 +40,9 @@
     "vite-plugin-electron-renderer": "^0.14.5",
     "vue-tsc": "^2.0.26"
   },
-  "main": "dist-electron/main.js"
+  "main": "dist-electron/main.js",
+  "volta": {
+    "node": "23.11.0",
+    "pnpm": "10.8.1"
+  }
 }
