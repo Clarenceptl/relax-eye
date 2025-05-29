@@ -2,7 +2,11 @@
   <Card>
     <CardHeader>
       <slot name="header" />
-      <Toggle variant="outline" aria-label="Toggle focus mode" v-model="focusWindow">
+      <Toggle
+        variant="outline"
+        aria-label="Toggle focus mode"
+        v-model="focusWindow"
+      >
         <p>Focus window</p>
       </Toggle>
     </CardHeader>
@@ -30,7 +34,7 @@ import { computed, onUnmounted, ref } from 'vue';
 const INIT_WORK_TIME_MIN = 20;
 const INIT_BREAK_TIME_SEC = 30;
 
-const initDateTimer = ref<Date>(new Date());
+const currentDate = ref<Date>(new Date());
 const focusWindow = ref(true);
 const timerVM = ref({
   minutes: INIT_WORK_TIME_MIN,
@@ -40,12 +44,16 @@ const currentInterval = ref<NodeJS.Timeout | null>(null);
 
 const countDownWork = computed<number>(() =>
   new Date(
-    initDateTimer.value.setMinutes(initDateTimer.value.getMinutes() + INIT_WORK_TIME_MIN)
+    currentDate.value.setMinutes(
+      currentDate.value.getMinutes() + INIT_WORK_TIME_MIN
+    )
   ).getTime()
 );
 const countDownBreak = computed<number>(() =>
   new Date(
-    initDateTimer.value.setSeconds(initDateTimer.value.getSeconds() + INIT_BREAK_TIME_SEC)
+    currentDate.value.setSeconds(
+      currentDate.value.getSeconds() + INIT_BREAK_TIME_SEC
+    )
   ).getTime()
 );
 //#endregion
@@ -70,64 +78,52 @@ const triggerFocusWindow = () => {
   if (focusWindow.value) {
     window.ipcRenderer.send('focus-main-window');
   }
-}
+};
 
-const timerWork = () => {
-  const count = () => {
-    const now = new Date().getTime();
-    const distance = countDownWork.value - now;
+const count = (isWorking: boolean) => {
+  const now = new Date().getTime();
+  const distance =
+    (isWorking ? countDownWork.value : countDownBreak.value) - now;
 
+  timerVM.value.seconds = getSecondes(distance);
+  if (isWorking) {
     timerVM.value.minutes = getMinutes(distance);
-    timerVM.value.seconds = getSecondes(distance);
-
-    if (distance < 0 && currentInterval.value) {
-      clearCurrentInterval();
-      sendNotification(
-        'Pomodoro',
-        'Time to take a break!'
-      );
+  }
+  if (distance < 0 && currentInterval.value) {
+    clearCurrentInterval();
+    sendNotification(
+      'Pomodoro',
+      isWorking ? 'Time to take a break!' : 'Time to work!'
+    );
+    if (isWorking) {
       timerBreak();
       triggerFocusWindow();
+    } else {
+      timerWork();
     }
-  };
-  initDateTimer.value = new Date();
+  }
+};
 
-  currentInterval.value = setInterval(count, 1000);
-  // First count
+const timerWork = () => {
+  currentDate.value = new Date();
+  currentInterval.value = setInterval(() => count(true), 1000);
   Object.assign(timerVM.value, {
-    minutes: 19,
+    minutes: INIT_WORK_TIME_MIN - 1,
     seconds: 59
   });
 };
 
 const timerBreak = () => {
-  const count = () => {
-    const now = new Date().getTime();
-    const distance = countDownBreak.value - now;
-
-    timerVM.value.seconds = getSecondes(distance);
-
-    if (distance < 0 && currentInterval.value) {
-      clearCurrentInterval();
-      sendNotification(
-        'Pomodoro',
-        'Time to work!'
-      );
-      timerWork();
-    }
-  };
-  initDateTimer.value = new Date();
-
-  currentInterval.value = setInterval(count, 1000);
-  // First count
+  currentDate.value = new Date();
+  currentInterval.value = setInterval(() => count(false), 1000);
   Object.assign(timerVM.value, {
     minutes: 0,
-    seconds: 29
+    seconds: INIT_BREAK_TIME_SEC - 1
   });
 };
 
 const resetTimer = () => {
-  initDateTimer.value = new Date();
+  currentDate.value = new Date();
   timerVM.value.minutes = INIT_WORK_TIME_MIN;
   timerVM.value.seconds = 0;
   clearCurrentInterval();
@@ -142,6 +138,10 @@ const start = () => {
 //#region Initialization
 window.ipcRenderer.on('clear-timer', () => {
   resetTimer();
+});
+
+window.ipcRenderer.on('restart', () => {
+  start();
 });
 //#endregion
 

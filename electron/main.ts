@@ -1,4 +1,4 @@
-import { app, BrowserWindow, powerMonitor, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, powerMonitor } from 'electron';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -73,7 +73,7 @@ ipcMain.on('focus-main-window', () => {
   if (win.isMinimized()) {
     win.restore();
   }
-  
+
   const timeout = setTimeout(() => {
     win.focus();
     win.setAlwaysOnTop(true, 'screen-saver');
@@ -81,14 +81,21 @@ ipcMain.on('focus-main-window', () => {
   }, 1000);
 });
 
-app.whenReady().then(createWindow).then(()=>{
-  const win = BrowserWindow.getAllWindows()[0];
-  
-  powerMonitor.on('suspend', () => {
-    win?.webContents.send('clear-timer');
-  });
+app
+  .whenReady()
+  .then(createWindow)
+  .then(() => {
+    const win = BrowserWindow.getAllWindows()[0];
 
-  powerMonitor.on('lock-screen', () => {
-    win?.webContents.send('clear-timer');
+    powerMonitor.on('suspend', () => {
+      win?.webContents.send('clear-timer');
+    });
+
+    powerMonitor.on('lock-screen', () => {
+      win?.webContents.send('clear-timer');
+    });
+
+    powerMonitor.on('unlock-screen', () =>
+      win?.webContents.send('restart')
+    );
   });
-});
